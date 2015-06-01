@@ -5,13 +5,19 @@
 require_once ( __DIR__ . '/Config.php' );
 
 
-// Set Path Variables
+// Set Path Variables (local Path not URI!)
 $PATH=array(
 	'ROOT'  => __DIR__ . '/',
 	'Common'=> __DIR__ . '/Common/',
-	'Public'=> __DIR__ . '/Public/',
 
-	//MVC architecture
+	// The path to run in web directory
+	/*
+		$_SERVER['SCRIPT_FILENAME'] may like this : /var/www/html/post/Public/index.php
+		after chop: /var/www/html/post/Public
+	*/
+	'Public'=> chop($_SERVER['SCRIPT_FILENAME'],'index.php'),
+
+	// MVC architecture
 	'Model'		=> __DIR__ . '/Models/',
 	'Controller'	=> __DIR__ . '/Controllers/',
 	'View'		=> __DIR__ . '/Views/',
@@ -33,5 +39,6 @@ session_start();
 
 
 // Router to indicate MVC
-include( $PATH['Common'] . 'Router.php' );
+include( $PATH['ROOT'] . 'Route.php' );
 ?>
+
