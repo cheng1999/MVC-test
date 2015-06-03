@@ -2,7 +2,7 @@
 
 
 // Loading the configuration
-require_once ( __DIR__ . '/Config.php' );
+require_once( __DIR__ . '/Config.php' );
 
 
 // Set Path Variables (local Path not URI!)
