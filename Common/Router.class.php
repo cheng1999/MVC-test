@@ -6,34 +6,42 @@ Class Route{
 	protected $URI_ROOT;
 
 	//URI_GET is the URI path which is require and chopped the path of URI_ROOT......  read more at __construct() too
-	protected $URI_GET='haha';
+	protected $URI_GET;
 
 
 
-	public function __construct() {
+	function __construct() {
 
 		//SCRIPT_NAME example: /post/Public/index.php
-		//after chop : /post/Public/
-		$this->URI_ROOT = chop($_SERVER['SCRIPT_NAME'] , "index.php");
+		//after replace : post/Public/
+		$this->URI_ROOT = str_replace("/index.php" , "" , $_SERVER['SCRIPT_NAME']);
 		
 		//REDIRECT_URL example: /post/Public/haha/1/2/3
-		//after chop : haha/1/2/3
-		//$this->URI_GET = chop($_SERVER['REDIRECT_URL'] , $this->URI_ROOT);
-		$this->URI_ROOT = 'haha2';
-		echo $this->URI_ROOT . $this->URI_GET;
-		echo 'test';
+		//after chop : /haha/1/2/3
+		//or if it is null, set it to /
+		$this->URI_GET = str_replace($this->URI_ROOT , "" , (@$_SERVER['REDIRECT_URL'] ? $_SERVER['REDIRECT_URL'] : "/"));
 	}
 
 
-	//testing
-//	print_r(explode("/", $_SERVER['REDIRECT_URL']));	
-
 	//routing	
-	public function get($router_uri , $controller_file , $function){
-		echo $this->URI_GET;
+
+	/*
+		$route_uri is the URI to catch to routing.
+
+		$action is if $route_uri is catch as match, what to do.
+		it may like this "home.controller.class.php@Controller::index()"
+			"home.controller.php"	: the file which is controller at Controllers' path.
+			"@"			: to divide both variable alongsides.
+			"index()" 		: the function which is require from controller.
+	*/
+	public function get($router_uri , $action){
+		global $PATH;
 		if ($router_uri == $this->URI_GET){
-			include($PATH['Controllers'] . $controller_file);
-			eval($function);
+
+			$controller_file = explode("@" , $action)[0];	//explode with @ and the array[0] is left side of @
+			include($PATH['Controller'] . $controller_file);	//include controller
+
+			$function = explode("@" , $action)[1];	//array[1] is right side of @
 		}
 	}
 

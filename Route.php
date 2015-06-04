@@ -2,5 +2,9 @@
 
 include( $PATH['Common'] . 'Router.class.php' );
 
-Route::get("/" , "Home.php" , "index()");
+$Route= new Route();
+
+$Route->get("/" , "Home.php@index()");
+
+
 ?>
