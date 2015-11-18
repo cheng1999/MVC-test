@@ -13,35 +13,59 @@ Class Route{
 	function __construct() {
 
 		//SCRIPT_NAME example: /post/Public/index.php
-		//after replace : post/Public/
-		$this->URI_ROOT = str_replace("/index.php" , "" , $_SERVER['SCRIPT_NAME']);
+		//after replace : /post/Public/
+		$this->URI_ROOT = dirname($_SERVER['SCRIPT_NAME']).'/';
 		
 		//REDIRECT_URL example: /post/Public/haha/1/2/3
-		//after chop : /haha/1/2/3
-		//or if it is null, set it to /
-		$this->URI_GET = str_replace($this->URI_ROOT , "" , (@$_SERVER['REDIRECT_URL'] ? $_SERVER['REDIRECT_URL'] : "/"));
+		//output : /haha/1/2/3/
+		//$this->URI_GET = @$_SERVER['REDIRECT_URL'] . '/';
+		$this->URI_GET = str_replace($this->URI_ROOT , "" , @$_SERVER['REDIRECT_URL']);
+		$this->URI_GET = rtrim($this->URI_GET, '/');
 	}
 
 
 	//routing	
 
 	/*
-		$route_uri is the URI to catch to routing.
-
-		$action is if $route_uri is catch as match, what to do.
-		it may like this "home.controller.class.php@Controller::index()"
-			"home.controller.php"	: the file which is controller at Controllers' path.
-			"@"			: to divide both variable alongsides.
-			"index()" 		: the function which is require from controller.
+		$route_uri : the URI to catch to routing.
+		$controller_file : the file which require when run $action
+		$action : if $route_uri is catch as match, what to do..
 	*/
-	public function get($router_uri , $controller_file , $action){
-		global $PATH;
-		if ($router_uri == $this->URI_GET){
-			
-			include($PATH['Controller'] . $controller_file);	//include controller
-			
+	
+	//only match uri
+	public function match($route_uri , $controller_file , $action){
+		
+		if ($route_uri == $this->URI_GET){	//directly run if match directly
+			($controller_file ? include(PATH_Controller . $controller_file) : null);	//include controller if $controller_file is set
+			call_user_func($action);	//do action
+		}
+	}
+	
+	//make uri available for $_GET
+	public function get($route_uri , $controller_file , $action){	
+		$array_route_uri = explode("/" , $route_uri);
+		$array_URI_GET = explode("/" , $this->URI_GET);
+		
+		$match = (sizeof($array_route_uri)===sizeof($array_URI_GET)?true:false);	
+		if($match){
+			for($i=0; $i<=sizeof($array_route_uri) ; $i++){
+				if(@substr($array_route_uri[$i],0,1)=='{'){
+					
+					//convert '{username}' to 'username'
+					preg_match('~\{(.*?)\}~', $array_route_uri[$i], $get);	
+					//echo $get;
+					$_GET[$get[1]]=$array_URI_GET[$i];
+				}
+				else if(@$array_route_uri[$i]!==@$array_URI_GET[$i]){
+					
+					$match=false;
+					break ;
+				}
+			}
+		}
+		
+		if($match){
 			call_user_func($action);
-			
 		}
 	}
 

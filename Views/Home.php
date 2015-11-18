@@ -1,5 +1,1 @@
-<?php
-
-echo 'this is home ! success!!';
-
-?>
+<br>this is home! success :D

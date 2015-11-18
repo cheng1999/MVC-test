@@ -1,31 +1,31 @@
 <?php
 
-
 // Loading the configuration
 require_once( __DIR__ . '/Config.php' );
 
 
 // Set Path Variables (local Path not URI!)
-$PATH=array(
-	'ROOT'  => __DIR__ . '/',
-	'Common'=> __DIR__ . '/Common/',
+define('PATH_ROOT', __DIR__ . '/'); 
+define('PATH_Common', __DIR__ . '/Common/'); 
 
 	// The path to run in web directory
 	/*
 		$_SERVER['SCRIPT_FILENAME'] may like this : /var/www/html/post/Public/index.php
-		after chop: /var/www/html/post/Public
+		output: /var/www/html/post/Public/
 	*/
-	'Public'=> chop($_SERVER['SCRIPT_FILENAME'],'index.php'),
+define('PATH_Public', dirname($_SERVER['SCRIPT_FILENAME']) . '/');
 
-	// MVC architecture
-	'Model'		=> __DIR__ . '/Models/',
-	'Controller'	=> __DIR__ . '/Controllers/',
-	'View'		=> __DIR__ . '/Views/',
-);
+	//MVC architecture
+define('PATH_Model', __DIR__ . '/Models/');
+define('PATH_Controller', __DIR__ . '/Controllers/');
+define('PATH_View', __DIR__ . '/Views/');
 
+
+// Loading some common functions
+include( PATH_Common.'Common.inc.php' );
 
 // For sql Usage
-require_once( $PATH['Common'].'MysqliDb.php' );
+require_once( PATH_Common.'MysqliDb.php' );
 $DB = new MysqliDb (
 	$CONFIG['DB_HOST'],	//Database's Host
 	$CONFIG['DB_USER'],	//user
@@ -37,8 +37,7 @@ $DB = new MysqliDb (
 // Start session
 session_start();
 
-
 // Router to indicate MVC
-include( $PATH['ROOT'] . 'Route.php' );
+include( __DIR__ . '/Route.php' );
 ?>
 
