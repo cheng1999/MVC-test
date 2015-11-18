@@ -34,14 +34,14 @@ Class Route{
 			"@"			: to divide both variable alongsides.
 			"index()" 		: the function which is require from controller.
 	*/
-	public function get($router_uri , $action){
+	public function get($router_uri , $controller_file , $action){
 		global $PATH;
 		if ($router_uri == $this->URI_GET){
-
-			$controller_file = explode("@" , $action)[0];	//explode with @ and the array[0] is left side of @
+			
 			include($PATH['Controller'] . $controller_file);	//include controller
-
-			$function = explode("@" , $action)[1];	//array[1] is right side of @
+			
+			call_user_func($action);
+			
 		}
 	}
 
