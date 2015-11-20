@@ -2,25 +2,22 @@
 
 Class Route{
 
-	//URI_ROOT is the path of $_SERVER['SCRIPT_NAME'],read more at __construct()
-	protected $URI_ROOT;
-
 	//URI_GET is the URI path which is require and chopped the path of URI_ROOT......  read more at __construct() too
 	protected $URI_GET;
 
-
+	
+	protected $error404;
 
 	function __construct() {
-
-		//SCRIPT_NAME example: /post/Public/index.php
-		//after replace : /post/Public/
-		$this->URI_ROOT = dirname($_SERVER['SCRIPT_NAME']).'/';
 		
 		//REDIRECT_URL example: /post/Public/haha/1/2/3
 		//output : /haha/1/2/3/
 		//$this->URI_GET = @$_SERVER['REDIRECT_URL'] . '/';
-		$this->URI_GET = str_replace($this->URI_ROOT , "" , @$_SERVER['REDIRECT_URL']);
+		$this->URI_GET = str_replace(URI_ROOT , "" , @$_SERVER['REDIRECT_URL']);
 		$this->URI_GET = rtrim($this->URI_GET, '/');
+		
+		//if router do work after uri validation , $error404 will become false finally
+		$this->error404=true;
 	}
 
 
@@ -38,15 +35,30 @@ Class Route{
 		if ($route_uri == $this->URI_GET){	//directly run if match directly
 			($controller_file ? include(PATH_Controller . $controller_file) : null);	//include controller if $controller_file is set
 			call_user_func($action);	//do action
+			$this->error404=false;
+		}
+	}
+	
+	//match uri without case sensitive
+	public function match_ignoreCase($route_uri , $controller_file , $action){
+		
+		//make both string lower case and check matches or not
+		$route_uri = strtolower($route_uri);
+		$uri_get = strtolower($this->URI_GET);
+		
+		if ($route_uri == $uri_get){
+			($controller_file ? include(PATH_Controller . $controller_file) : null);	//include controller if $controller_file is set
+			call_user_func($action);	//do action
+			$this->error404=false;
 		}
 	}
 	
 	//make uri available for $_GET
-	public function get($route_uri , $controller_file , $action){	
+	public function get($route_uri , $controller_file , $action){
 		$array_route_uri = explode("/" , $route_uri);
-		$array_URI_GET = explode("/" , $this->URI_GET);
+		$array_uri_get = explode("/" , $this->URI_GET);
 		
-		$match = (sizeof($array_route_uri)===sizeof($array_URI_GET)?true:false);	
+		$match = (sizeof($array_route_uri)===sizeof($array_uri_get)?true:false);	
 		if($match){
 			for($i=0; $i<=sizeof($array_route_uri) ; $i++){
 				if(@substr($array_route_uri[$i],0,1)=='{'){
@@ -54,9 +66,9 @@ Class Route{
 					//convert '{username}' to 'username'
 					preg_match('~\{(.*?)\}~', $array_route_uri[$i], $get);	
 					//echo $get;
-					$_GET[$get[1]]=$array_URI_GET[$i];
+					$_GET[$get[1]]=$array_uri_get[$i];
 				}
-				else if(@$array_route_uri[$i]!==@$array_URI_GET[$i]){
+				else if(@$array_route_uri[$i]!==@$array_uri_get[$i]){
 					
 					$match=false;
 					break ;
@@ -66,6 +78,13 @@ Class Route{
 		
 		if($match){
 			call_user_func($action);
+			$this->error404 = false;
+		}
+	}
+	
+	public function check404(){
+		if($this->error404==true){
+			error404();
 		}
 	}
 

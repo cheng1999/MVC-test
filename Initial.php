@@ -4,6 +4,8 @@
 require_once( __DIR__ . '/Config.php' );
 
 
+/*-----------Define----------*/
+
 // Set Path Variables (local Path not URI!)
 define('PATH_ROOT', __DIR__ . '/'); 
 define('PATH_Common', __DIR__ . '/Common/'); 
@@ -20,6 +22,12 @@ define('PATH_Model', __DIR__ . '/Models/');
 define('PATH_Controller', __DIR__ . '/Controllers/');
 define('PATH_View', __DIR__ . '/Views/');
 
+/*
+ Set URI Variable
+ SCRIPT_NAME example: /post/Public/index.php
+ output : /post/Public/
+*/
+define('URI_ROOT',dirname($_SERVER['SCRIPT_NAME']).'/');
 
 // Loading some common functions
 include( PATH_Common.'Common.inc.php' );
